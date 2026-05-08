@@ -639,6 +639,16 @@ const THEMES = [
   },
 ];
 
+// ─── CTA Copy Pool (6 variants) ──────────────────────────────────────────────
+const CTA_POOL = [
+  `Ready to stop settling for a digital presence that underperforms your business? Book a free 30-minute strategy call with the {agencyName} team. We'll audit your current platform, review your top competitors in {subCity}, and outline a clear roadmap — no pressure, no commitment, just an honest conversation about what it takes to compete in {city}.`,
+  `Your {subCity} competitors aren't waiting. Every month with a slow, poorly-optimised platform means leads you won't recover. The gap between where you are and where you need to be is almost always smaller than it looks. Reach out to {agencyName} for a free proposal and see what properly engineered {service} can do for your {city} business.`,
+  `The {subCity} businesses dominating local search today made the decision to invest in a proper digital foundation. If you're ready to make that same decision, we're ready to help. Call us, message us on WhatsApp, or fill out the brief below — a senior {agencyName} team member will respond within four business hours with a detailed, itemised proposal.`,
+  `A free proposal from {agencyName} costs you nothing and tells you exactly what it would take to build a {service} platform that competes at the top of the {subCity} market. We'll scope the project, benchmark it against what's currently ranking in {city}, and give you a realistic timeline and investment figure — all before you commit to anything.`,
+  `Share a brief about your business and your goals for {subCity}, and our senior {service} team will come back with a detailed proposal, technical recommendations, and examples of comparable work we've delivered for {city} businesses in your sector. No generic quotes — every proposal we send is specific to your exact situation and competitive landscape.`,
+  `If your current {service} platform isn't generating the leads your {subCity} business deserves, let's change that. {agencyName} will give you an honest, no-obligation audit of your existing digital presence, a breakdown of what's holding it back in {city}'s search results, and a concrete action plan to fix it. Take the first step today.`,
+];
+
 // ─── Client Types by area ─────────────────────────────────────────────────────
 function getClientTypes(subCity: string, city: string, ctx: typeof CITY_CONTEXT[string] | undefined): string {
   const type = detectAreaType(subCity);
