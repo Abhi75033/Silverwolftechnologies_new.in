@@ -42,7 +42,6 @@ export default function ServiceDetailClient({
   const otherSubCities = subCities.filter((sc) => sc !== subCity);
 
   const teamMembers = service.teamMembers ?? [];
-  const hasTeam = teamMembers.length > 0;
 
   const areaData = citySlugParam && subCitySlugParam ? getAreaData(citySlugParam, subCitySlugParam, service.title) : undefined;
   const cityData = citySlugParam ? getCityData(citySlugParam) : undefined;
@@ -76,52 +75,9 @@ export default function ServiceDetailClient({
             )}
           </nav>
 
-          <div className={`grid ${hasTeam ? "lg:grid-cols-[auto_1fr] gap-12 lg:gap-16 items-start" : ""}`}>
-            {/* Team Profiles */}
-            {hasTeam && (
-              <div className="order-2 lg:order-1 flex lg:flex-col items-center gap-5 lg:sticky lg:top-36">
-                <div className="relative flex lg:flex-col items-center">
-                  {teamMembers.slice(0, 4).map((member, idx) => (
-                    <div key={member.name} className="relative group" style={{ zIndex: teamMembers.length - idx }}>
-                      <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-background shadow-lg shadow-black/30 relative ${idx > 0 ? "-ml-3 lg:ml-0 lg:-mt-3" : ""}`}>
-                        {member.photo ? (
-                          <img src={member.photo} alt={member.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/20 to-secondary flex items-center justify-center">
-                            <span className="text-lg md:text-xl font-bold text-gradient-primary">
-                              {member.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                            </span>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 rounded-full ring-2 ring-primary/0 group-hover:ring-primary/60 transition-all duration-500" />
-                      </div>
-                      <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 z-50 hidden lg:block">
-                        <div className="glass rounded-xl px-4 py-3 whitespace-nowrap shadow-lg shadow-black/40 min-w-[200px]">
-                          <p className="text-sm font-semibold">{member.name}</p>
-                          <p className="text-[10px] text-primary font-medium">{member.role}</p>
-                          <p className="text-[10px] text-muted-foreground mt-1">{member.experience} experience</p>
-                          {member.linkedin && (
-                            <a href={member.linkedin} target="_blank" rel="noreferrer" className="text-[10px] text-primary/70 hover:text-primary mt-1 inline-flex items-center gap-1">LinkedIn ↗</a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {teamMembers.length > 4 && (
-                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full bg-secondary/80 border-2 border-background flex items-center justify-center shadow-lg shadow-black/30 -ml-3 lg:ml-0 lg:-mt-3`} style={{ zIndex: 0 }}>
-                      <span className="text-xs font-semibold text-muted-foreground">+{teamMembers.length - 4}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="text-center lg:text-left">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Expert Team</p>
-                  <p className="text-xs text-muted-foreground">{teamMembers.length} specialist{teamMembers.length > 1 ? "s" : ""}</p>
-                </div>
-              </div>
-            )}
-
+          <div>
             {/* Main Hero Content */}
-            <div className={`order-1 lg:order-2 ${hasTeam ? "" : "max-w-4xl"}`}>
+            <div className="max-w-4xl">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{service.category}</span>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mt-4 mb-6 leading-tight">
                 {areaData?.h1Variant ? (
@@ -142,29 +98,6 @@ export default function ServiceDetailClient({
                   <MapPin className="h-3.5 w-3.5 text-primary" />
                   Serving businesses across {locationLabel} {areaData && areaData.nearbyAreas ? `(including ${areaData.nearbyAreas.join(', ')})` : '& nearby regions'}
                 </p>
-              )}
-
-              {/* Mobile team cards */}
-              {hasTeam && (
-                <div className="flex flex-wrap gap-3 mb-8 lg:hidden">
-                  {teamMembers.slice(0, 3).map((member) => (
-                    <div key={member.name} className="glass rounded-xl px-3 py-2 flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 border border-primary/30">
-                        {member.photo ? (
-                          <img src={member.photo} alt={member.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary/30 to-secondary flex items-center justify-center">
-                            <span className="text-xs font-bold text-gradient-primary">{member.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold leading-tight">{member.name}</p>
-                        <p className="text-[10px] text-primary">{member.role}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               )}
 
               <div className="flex flex-col sm:flex-row gap-4">
