@@ -21,11 +21,12 @@ export interface AreaData {
   // ── Extended content fields (populated by contentGenerator) ──────────────────
   h1Variant?: string;       // Unique H1 text for this page
   metaTitle?: string;       // Unique meta title (without brand suffix)
-  h3Options?: string[];     // Sub-heading variants for body sections
-  bodySection1?: string;    // Local market context paragraph
-  bodySection2?: string;    // Service benefits paragraph
-  bodySection3?: string;    // Why-choose-us paragraph
+  contentBlocks?: {
+    heading: string;
+    content: string;
+  }[];                      // Dynamic array of structural body sections
   ctaCopy?: string;         // Unique CTA paragraph
+  internalLinkingSuggestions?: string[]; // Internal linking paths
 }
 
 export interface CityData {

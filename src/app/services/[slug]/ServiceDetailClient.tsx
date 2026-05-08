@@ -233,34 +233,16 @@ export default function ServiceDetailClient({
       </section>
 
       {/* Hyper-Local Body Sections */}
-      {areaData && (areaData.bodySection1 || areaData.bodySection2 || areaData.bodySection3) && (
+      {areaData?.contentBlocks && areaData.contentBlocks.length > 0 && (
         <section className="py-16 md:py-24">
           <div className="container">
             <div className="max-w-4xl mx-auto space-y-14">
-              {areaData.bodySection1 && (
-                <div className="animate-fade-up">
-                  {areaData.h3Options?.[0] && (
-                    <h3 className="text-lg font-semibold text-primary mb-3">{areaData.h3Options[0]}</h3>
-                  )}
-                  <p className="text-muted-foreground leading-relaxed text-[15px]">{areaData.bodySection1}</p>
+              {areaData.contentBlocks.map((block, index) => (
+                <div key={index} className="animate-fade-up">
+                  <h3 className="text-xl md:text-2xl font-semibold text-primary mb-4">{block.heading}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-[16px] md:text-[17px]">{block.content}</p>
                 </div>
-              )}
-              {areaData.bodySection2 && (
-                <div className="animate-fade-up">
-                  {areaData.h3Options?.[1] && (
-                    <h3 className="text-lg font-semibold text-primary mb-3">{areaData.h3Options[1]}</h3>
-                  )}
-                  <p className="text-muted-foreground leading-relaxed text-[15px]">{areaData.bodySection2}</p>
-                </div>
-              )}
-              {areaData.bodySection3 && (
-                <div className="animate-fade-up">
-                  {areaData.h3Options?.[2] && (
-                    <h3 className="text-lg font-semibold text-primary mb-3">{areaData.h3Options[2]}</h3>
-                  )}
-                  <p className="text-muted-foreground leading-relaxed text-[15px]">{areaData.bodySection3}</p>
-                </div>
-              )}
+              ))}
             </div>
           </div>
         </section>
