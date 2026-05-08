@@ -559,8 +559,6 @@ const THEMES = [
       `We are selective about the projects we take on because we've learned that the best outcomes happen when there's genuine alignment between what a client needs and what we do best. Before any {subCity} engagement starts, we have an honest conversation about your goals, timeline, budget, and competitive landscape. If we're the right fit, we'll tell you exactly why, creating a comprehensive roadmap tailored entirely for your specific niche within {city}.`,
     ],
   },
-];
-
   {
     id: "user_experience",
     headings: [
