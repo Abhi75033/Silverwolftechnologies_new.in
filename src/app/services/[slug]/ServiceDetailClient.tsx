@@ -5,11 +5,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Contact } from "@/components/site/Contact";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight, MapPin } from "lucide-react";
+import { Check, ArrowRight, MapPin, ChevronDown } from "lucide-react";
 import {
   SERVICES, CITIES, SUB_CITIES, citySlug, cityFromSlug,
   subCityFromSlug, getSubCities, SITE,
 } from "@/data/site";
+import { getAreaData, getCityData } from "@/lib/locationData";
 
 export default function ServiceDetailClient({
   slug, citySlugParam, subCitySlugParam
@@ -40,10 +41,11 @@ export default function ServiceDetailClient({
   const subCities = city ? getSubCities(city) : [];
   const otherSubCities = subCities.filter((sc) => sc !== subCity);
 
-  const teamMembers = (service.teamMembers ?? []).filter(
-    (m) => m.name !== "Add Team Member" && m.experience !== "X+ Years"
-  );
+  const teamMembers = service.teamMembers ?? [];
   const hasTeam = teamMembers.length > 0;
+
+  const areaData = citySlugParam && subCitySlugParam ? getAreaData(citySlugParam, subCitySlugParam, service.title) : undefined;
+  const cityData = citySlugParam ? getCityData(citySlugParam) : undefined;
 
   return (
     <>
@@ -122,8 +124,10 @@ export default function ServiceDetailClient({
             <div className={`order-1 lg:order-2 ${hasTeam ? "" : "max-w-4xl"}`}>
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{service.category}</span>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mt-4 mb-6 leading-tight">
-                {subCity ? (
-                  <>Best <span className="text-gradient">{service.title}</span> in {subCity}, {city}</>
+                {areaData?.h1Variant ? (
+                  <>{areaData.h1Variant}</>
+                ) : subCity ? (
+                  <>Custom <span className="text-gradient">{service.title}</span> in {subCity}, {city}</>
                 ) : city ? (
                   <>Best <span className="text-gradient">{service.title}</span> Agency in {city}</>
                 ) : (
@@ -131,12 +135,12 @@ export default function ServiceDetailClient({
                 )}
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl leading-relaxed">
-                {subCity ? `Looking for expert ${service.title.toLowerCase()} in ${subCity}? ${service.longDescription}` : service.longDescription}
+                {areaData ? areaData.intro : cityData ? cityData.description : service.longDescription}
               </p>
               {(city || subCity) && (
                 <p className="text-sm text-muted-foreground mb-8 inline-flex items-center gap-2 glass rounded-full px-4 py-2">
                   <MapPin className="h-3.5 w-3.5 text-primary" />
-                  Serving businesses across {locationLabel} & nearby regions
+                  Serving businesses across {locationLabel} {areaData && areaData.nearbyAreas ? `(including ${areaData.nearbyAreas.join(', ')})` : '& nearby regions'}
                 </p>
               )}
 
@@ -178,7 +182,9 @@ export default function ServiceDetailClient({
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div className="animate-fade-up">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">What you get</span>
-              <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-8">{city ? `${service.title} deliverables in ${city}` : "Built for results, not buzzwords."}</h2>
+              <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-8">
+                {areaData && areaData.h2Options && areaData.h2Options[0] ? areaData.h2Options[0] : `Why Choose Our ${service.title} Experts`}
+              </h2>
               <ul className="space-y-3">
                 {service.bullets.map((b) => (
                   <li key={b} className="flex gap-3 text-muted-foreground">
@@ -209,7 +215,10 @@ export default function ServiceDetailClient({
         <div className="container">
           <div className="max-w-2xl mb-12 animate-fade-up">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Our Process</span>
-            <h2 className="text-3xl md:text-5xl font-bold mt-4">{city ? `How we deliver ${service.title.toLowerCase()} in ${city}` : <>A proven framework, refined over <span className="text-gradient">{SITE.yearsExperience} years.</span></>}</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mt-4">
+               {areaData && areaData.h2Options && areaData.h2Options[1] ? areaData.h2Options[1] : `Our ${service.title} Process, refined over `}
+               {!areaData && <span className="text-gradient">{SITE.yearsExperience} years.</span>}
+            </h2>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {service.process.map((p, i) => (
@@ -223,6 +232,40 @@ export default function ServiceDetailClient({
         </div>
       </section>
 
+      {/* Hyper-Local Body Sections */}
+      {areaData && (areaData.bodySection1 || areaData.bodySection2 || areaData.bodySection3) && (
+        <section className="py-16 md:py-24">
+          <div className="container">
+            <div className="max-w-4xl mx-auto space-y-14">
+              {areaData.bodySection1 && (
+                <div className="animate-fade-up">
+                  {areaData.h3Options?.[0] && (
+                    <h3 className="text-lg font-semibold text-primary mb-3">{areaData.h3Options[0]}</h3>
+                  )}
+                  <p className="text-muted-foreground leading-relaxed text-[15px]">{areaData.bodySection1}</p>
+                </div>
+              )}
+              {areaData.bodySection2 && (
+                <div className="animate-fade-up">
+                  {areaData.h3Options?.[1] && (
+                    <h3 className="text-lg font-semibold text-primary mb-3">{areaData.h3Options[1]}</h3>
+                  )}
+                  <p className="text-muted-foreground leading-relaxed text-[15px]">{areaData.bodySection2}</p>
+                </div>
+              )}
+              {areaData.bodySection3 && (
+                <div className="animate-fade-up">
+                  {areaData.h3Options?.[2] && (
+                    <h3 className="text-lg font-semibold text-primary mb-3">{areaData.h3Options[2]}</h3>
+                  )}
+                  <p className="text-muted-foreground leading-relaxed text-[15px]">{areaData.bodySection3}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Content */}
       {service.contentSections && service.contentSections.length > 0 && (
         <section className="py-16 md:py-24">
@@ -235,7 +278,7 @@ export default function ServiceDetailClient({
                       <span className="text-lg font-bold text-gradient-primary">0{idx + 1}</span>
                     </div>
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-bold mb-4">{section.heading}</h2>
+                      <h2 className="text-2xl md:text-3xl font-bold mb-4">{idx === 0 && areaData && areaData.h2Options && areaData.h2Options[2] ? areaData.h2Options[2] : section.heading}</h2>
                       <p className="text-muted-foreground leading-relaxed text-[15px]">{section.body}</p>
                     </div>
                   </div>
@@ -246,77 +289,45 @@ export default function ServiceDetailClient({
         </section>
       )}
 
-      {/* Areas We Serve — rich content section listing all sub-cities */}
-      {city && subCities.length > 0 && (
-        <section className="py-16 md:py-24">
+      {/* Hyper-Local FAQs */}
+      {areaData && areaData.faqs && areaData.faqs.length > 0 && (
+        <section className="py-16 md:py-24 bg-secondary/10">
           <div className="container">
-            <div className="max-w-3xl mb-10 animate-fade-up">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Areas We Serve in {city}</span>
-              <h2 className="text-3xl md:text-5xl font-bold mt-4">{service.title} across <span className="text-gradient">all of {city}</span></h2>
-            </div>
-            <div className="glass rounded-2xl p-8 animate-fade-up">
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                Our {service.title.toLowerCase()} services are available across every major area in {city}. Whether you&apos;re a business in {subCities.slice(0, 3).join(", ")} or operating from {subCities.slice(3, 6).join(", ")}, our team delivers the same enterprise-grade quality tailored to your local market.
-              </p>
-              <h3 className="text-lg font-semibold mb-4">All {city} areas we serve:</h3>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {subCities.map((sc) => (
-                  <span key={sc} className="glass rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all cursor-default">
-                    {sc}
-                  </span>
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center mb-12 animate-fade-up">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Local FAQ</span>
+                <h2 className="text-3xl md:text-5xl font-bold mt-4">Frequently Asked Questions in {subCity}</h2>
+              </div>
+              <div className="space-y-4">
+                {areaData.faqs.map((faq, i) => (
+                  <div key={i} className="glass rounded-xl p-6 animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
+                    <h3 className="text-lg font-bold mb-3">{faq.question}</h3>
+                    <p className="text-muted-foreground leading-relaxed text-sm">{faq.answer}</p>
+                  </div>
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                No matter which part of {city} you&apos;re based in — {subCities.slice(0, 5).join(", ")} and beyond — Silver Wolf Technologies brings {service.title.toLowerCase()} expertise right to your doorstep. We understand the local business landscape across {city} and tailor our approach for maximum impact in your specific area.
-              </p>
             </div>
           </div>
         </section>
       )}
 
-      {/* FAQ Section — dynamic FAQs with location keywords */}
-      {city && (
-        <section className="py-16 md:py-24 bg-secondary/20">
-          <div className="container">
-            <div className="max-w-3xl mb-10 animate-fade-up">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Frequently Asked Questions</span>
-              <h2 className="text-3xl md:text-5xl font-bold mt-4">{service.title} in {city} — <span className="text-gradient">FAQs</span></h2>
-            </div>
-            <div className="max-w-3xl space-y-4 animate-fade-up">
-              {[
-                { q: `What does ${service.title.toLowerCase()} cost in ${city}?`, a: `Our ${service.title.toLowerCase()} pricing in ${city} varies based on project scope and requirements. We offer competitive rates starting from affordable packages. Contact us for a free, no-obligation quote tailored to your business needs.` },
-                { q: `How long does ${service.title.toLowerCase()} take in ${city}?`, a: `Typical ${service.title.toLowerCase()} projects in ${city} take 2-8 weeks depending on complexity. Our ${city} team follows an agile approach to deliver results efficiently without compromising quality.` },
-                { q: `Why choose Silver Wolf Technologies for ${service.title.toLowerCase()} in ${city}?`, a: `With ${SITE.yearsExperience}+ years of experience and 200+ projects delivered, we are one of ${city}'s most trusted ${service.title.toLowerCase()} agencies. We combine local market expertise with global best practices.` },
-                { q: `Do you provide ongoing support after ${service.title.toLowerCase()} in ${city}?`, a: `Yes, we provide dedicated post-delivery support for all our ${city} clients. Our team ensures your project continues to perform optimally with regular maintenance and updates.` },
-                { q: `Can I see examples of your ${service.title.toLowerCase()} work in ${city}?`, a: `Absolutely! Visit our portfolio page to see case studies from ${city} and other cities. We have delivered successful projects across various industries.` },
-              ].map((faq) => (
-                <details key={faq.q} className="glass rounded-2xl group">
-                  <summary className="px-6 py-5 cursor-pointer text-sm font-semibold flex items-center justify-between list-none">
-                    {faq.q}
-                    <ArrowRight className="h-4 w-4 text-primary transition-transform duration-300 group-open:rotate-90 shrink-0 ml-4" />
-                  </summary>
-                  <div className="px-6 pb-5">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
-                  </div>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
+      {/* Sub Cities */}
+      {city && !subCity && subCities.length > 0 && (
+        <SubCitiesSection serviceSlug={service.slug} serviceTitle={service.title} city={city} subCities={subCities} />
       )}
 
-      {/* Cross-City Internal Linking — builds link equity between city pages */}
-      {city && otherCities.length > 0 && (
+      {/* Other Sub Cities */}
+      {subCity && otherSubCities.length > 0 && (
         <section className="py-16 md:py-24">
           <div className="container">
             <div className="max-w-2xl mb-10 animate-fade-up">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{service.title} in other cities</span>
-              <h2 className="text-3xl md:text-5xl font-bold mt-4">Also available <span className="text-gradient">across India & globally</span></h2>
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Also serving in {city}</span>
+              <h2 className="text-3xl md:text-5xl font-bold mt-4">{service.title} in <span className="text-gradient">other areas of {city}</span></h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {otherCities.map((c) => (
-                <Link key={c} href={`/services/${service.slug}/${citySlug(c)}`} className="glass rounded-xl px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all flex items-center justify-between group">
-                  <span>{service.title.split(" ")[0]} in {c}</span>
+              {otherSubCities.map((sc) => (
+                <Link key={sc} href={`/services/${service.slug}/${citySlug(city)}/${citySlug(sc)}`} className="glass rounded-xl px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all flex items-center justify-between group">
+                  <span>{sc}</span>
                   <ArrowRight className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
               ))}
@@ -325,14 +336,14 @@ export default function ServiceDetailClient({
         </section>
       )}
 
-      {/* All Cities — for service pages without city */}
+      {/* Other Major Cities */}
       {!city && (
         <section className="py-16 md:py-24">
           <div className="container">
             <div className="max-w-2xl mb-10 animate-fade-up">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Locations</span>
               <h2 className="text-3xl md:text-5xl font-bold mt-4">{service.title} <span className="text-gradient">across India & globally.</span></h2>
-              <p className="text-muted-foreground mt-3">Expert {service.title.toLowerCase()} services in your city.</p>
+              <p className="text-muted-foreground mt-3">Dedicated landing pages for businesses in your city.</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {CITIES.map((c) => (
@@ -366,8 +377,54 @@ export default function ServiceDetailClient({
         </div>
       </section>
 
+      {/* Unique CTA Copy */}
+      {areaData?.ctaCopy && (
+        <section className="py-12 md:py-16">
+          <div className="container">
+            <div className="max-w-3xl mx-auto glass rounded-2xl p-8 md:p-10 text-center animate-fade-up">
+              <p className="text-muted-foreground leading-relaxed text-[15px] mb-6">{areaData.ctaCopy}</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button asChild variant="hero"><Link href="/contact">Get Free Proposal <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
+                <Button asChild variant="glass"><a href={`tel:${SITE.phoneRaw}`}>Call {SITE.phone}</a></Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <Contact compact presetService={titleBase} />
     </>
   );
 }
 
+const SubCitiesSection = ({ serviceSlug, serviceTitle, city, subCities }: { serviceSlug: string; serviceTitle: string; city: string; subCities: string[]; }) => {
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? subCities : subCities.slice(0, 12);
+
+  return (
+    <section className="py-16 md:py-24">
+      <div className="container">
+        <div className="max-w-2xl mb-10 animate-fade-up">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Areas in {city}</span>
+          <h2 className="text-3xl md:text-5xl font-bold mt-4">{serviceTitle} across <span className="text-gradient">{city}</span></h2>
+          <p className="text-muted-foreground mt-3">Hyper-local pages for businesses in every neighbourhood of {city}.</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {visible.map((sc) => (
+            <Link key={sc} href={`/services/${serviceSlug}/${citySlug(city)}/${citySlug(sc)}`} className="glass rounded-xl px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all flex items-center justify-between group">
+              <span>{serviceTitle.split(" ")[0]} in {sc}</span>
+              <ArrowRight className="h-3.5 w-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            </Link>
+          ))}
+        </div>
+        {subCities.length > 12 && !showAll && (
+          <div className="text-center mt-6">
+            <button onClick={() => setShowAll(true)} className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 font-medium transition-colors">
+              Show all {subCities.length} areas <ChevronDown className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
